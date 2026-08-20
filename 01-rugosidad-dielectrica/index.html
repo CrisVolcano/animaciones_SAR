@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Retrodispersión SAR interactiva</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="stage-area" aria-label="Animación interactiva SAR">
+        <div class="stage-top">
+          <div>
+            <p class="eyebrow">Señal SAR y retrodispersión</p>
+            <h1>Constante dieléctrica, rugosidad y retorno al sensor</h1>
+          </div>
+          <div class="readout-strip" aria-label="Lecturas del modelo">
+            <div>
+              <span>σ°</span>
+              <strong id="sigma-readout">-36 dB</strong>
+            </div>
+            <div>
+              <span>Retorno</span>
+              <strong id="return-readout">2%</strong>
+            </div>
+            <div>
+              <span>Modo</span>
+              <strong id="mode-readout">Lisa seca</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-frame">
+          <canvas id="sar-canvas" aria-label="Satélite SAR, pulso incidente, dispersión y retorno"></canvas>
+          <div class="legend-bar" aria-hidden="true">
+            <span><i class="swatch swatch-pulse"></i>Pulso incidente</span>
+            <span><i class="swatch swatch-specular"></i>Reflexión especular</span>
+            <span><i class="swatch swatch-back"></i>Retrodispersión</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="controls" aria-label="Controles de simulación">
+        <div class="control-head">
+          <p class="eyebrow">Parámetros de superficie</p>
+          <h2>Escenario</h2>
+        </div>
+
+        <label class="slider-row">
+          <span>
+            <b>Constante dieléctrica εr</b>
+            <output id="dielectric-output">3.5</output>
+          </span>
+          <input id="dielectric" type="range" min="3" max="35" step="0.1" value="3.5">
+        </label>
+
+        <label class="slider-row">
+          <span>
+            <b>Rugosidad h<sub>rms</sub>/λ</b>
+            <output id="roughness-output">0.03</output>
+          </span>
+          <input id="roughness" type="range" min="0.01" max="0.55" step="0.01" value="0.03">
+        </label>
+
+        <label class="slider-row">
+          <span>
+            <b>Ángulo de incidencia</b>
+            <output id="incidence-output">36°</output>
+          </span>
+          <input id="incidence" type="range" min="25" max="55" step="1" value="36">
+        </label>
+
+        <div class="button-row">
+          <button id="pulse-button" type="button">Emitir pulso</button>
+          <button id="demo-button" type="button">Demo 20 s</button>
+          <button id="pause-button" type="button">Pausar</button>
+        </div>
+
+        <div class="preset-grid" aria-label="Casos de referencia">
+          <button type="button" data-dielectric="3.5" data-roughness="0.03">Baja εr · baja rugosidad</button>
+          <button type="button" data-dielectric="28" data-roughness="0.03">Alta εr · baja rugosidad</button>
+          <button type="button" data-dielectric="3.5" data-roughness="0.48">Baja εr · alta rugosidad</button>
+          <button type="button" data-dielectric="28" data-roughness="0.48">Alta εr · alta rugosidad</button>
+        </div>
+
+        <div class="balance" aria-label="Balance de energía">
+          <div class="meter-row">
+            <span>Especular</span>
+            <i><b id="specular-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Difusa</span>
+            <i><b id="diffuse-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Al sensor</span>
+            <i><b id="backscatter-meter"></b></i>
+          </div>
+        </div>
+
+        <p id="interpretation" class="interpretation">
+          Superficie lisa y poco reflectiva: el pulso pierde energía y casi no vuelve al sensor.
+        </p>
+      </aside>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

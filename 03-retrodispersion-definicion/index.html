@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Definición visual de retrodispersión SAR</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="stage-area" aria-label="Animación conceptual de retrodispersión">
+        <div class="stage-top">
+          <div>
+            <a class="back-link" href="../">Visualizaciones SAR</a>
+            <p class="eyebrow">Definición visual</p>
+            <h1>Retrodispersión: energía radar que regresa al sensor</h1>
+          </div>
+          <div class="readouts" aria-label="Lecturas de la animación">
+            <div>
+              <span>Etapa</span>
+              <strong id="phase-readout">Emisión</strong>
+            </div>
+            <div>
+              <span>Retorno relativo</span>
+              <strong id="return-readout">38%</strong>
+            </div>
+            <div>
+              <span>σ° conceptual</span>
+              <strong id="sigma-readout">-14 dB</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-frame">
+          <canvas id="sar-canvas" aria-label="Radar, pulso incidente, dispersión y retorno al sensor"></canvas>
+          <div class="legend" aria-hidden="true">
+            <span><i class="swatch swatch-pulse"></i>Pulso incidente</span>
+            <span><i class="swatch swatch-scatter"></i>Energía dispersada</span>
+            <span><i class="swatch swatch-back"></i>Retrodispersión</span>
+            <span><i class="swatch swatch-loss"></i>Pérdida / absorción</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="controls" aria-label="Controles de la definición de retrodispersión">
+        <section class="definition-panel">
+          <p class="eyebrow">Definición</p>
+          <p>
+            La retrodispersión es la fracción de la energía electromagnética emitida por el radar
+            que, después de interactuar con una superficie o un blanco, se dispersa de regreso en
+            dirección al sensor.
+          </p>
+        </section>
+
+        <section class="control-section">
+          <p class="eyebrow">Secuencia</p>
+          <div class="step-grid" id="step-options">
+            <button type="button" data-step="0">1 Emisión</button>
+            <button type="button" data-step="1">2 Interacción</button>
+            <button type="button" data-step="2">3 Dispersión</button>
+            <button type="button" data-step="3">4 Retorno</button>
+            <button type="button" data-step="4">5 Medición</button>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <p class="eyebrow">Ejemplo</p>
+          <div class="choice-grid" id="target-options">
+            <button type="button" data-target="water">Agua lisa</button>
+            <button type="button" data-target="soil">Suelo rugoso</button>
+            <button type="button" data-target="forest">Bosque</button>
+            <button type="button" data-target="corner">Esquina urbana</button>
+          </div>
+        </section>
+
+        <div class="button-row">
+          <button id="pulse-button" type="button">Pulso</button>
+          <button id="play-button" type="button" aria-pressed="true">Pausar</button>
+          <button id="reset-button" type="button">Reiniciar</button>
+        </div>
+
+        <section class="energy-panel" aria-label="Balance relativo de energía">
+          <div class="meter-row">
+            <span>Absorbida o perdida</span>
+            <i><b id="loss-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Reflexión especular</span>
+            <i><b id="specular-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Dispersión en otras direcciones</span>
+            <i><b id="scatter-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Retrodispersión al sensor</span>
+            <i><b id="backscatter-meter"></b></i>
+          </div>
+        </section>
+
+        <p class="interpretation" id="interpretation">
+          La señal vuelve porque una parte de la energía dispersada queda orientada hacia la antena.
+        </p>
+      </aside>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

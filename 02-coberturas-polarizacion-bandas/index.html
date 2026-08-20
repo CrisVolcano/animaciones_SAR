@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Coberturas, polarización y bandas SAR</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="stage-area" aria-label="Simulador SAR por cobertura">
+        <div class="stage-top">
+          <div>
+            <a class="back-link" href="../">Visualizaciones SAR</a>
+            <p class="eyebrow">Coberturas · polarización · longitud de onda</p>
+            <h1>Scattering SAR en vegetación, infraestructura y cultivos</h1>
+          </div>
+          <div class="readouts" aria-label="Lecturas del modelo">
+            <div>
+              <span>σ° estimado</span>
+              <strong id="sigma-readout">-14 dB</strong>
+            </div>
+            <div>
+              <span>Mecanismo</span>
+              <strong id="mechanism-readout">Volumen</strong>
+            </div>
+            <div>
+              <span>Despolarización</span>
+              <strong id="depol-readout">52%</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-frame">
+          <canvas id="sar-canvas" aria-label="Escena SAR con cobertura y rutas de scattering"></canvas>
+          <div class="legend" aria-hidden="true">
+            <span><i class="swatch swatch-surface"></i>Superficie</span>
+            <span><i class="swatch swatch-volume"></i>Volumen</span>
+            <span><i class="swatch swatch-double"></i>Doble rebote</span>
+            <span><i class="swatch swatch-back"></i>Retorno al sensor</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="controls" aria-label="Controles SAR">
+        <div class="control-section">
+          <p class="eyebrow">Cobertura</p>
+          <div class="choice-grid cover-grid" id="cover-options">
+            <button type="button" data-cover="forest">Árboles</button>
+            <button type="button" data-cover="urban">Infraestructura</button>
+            <button type="button" data-cover="pasture">Pastos</button>
+            <button type="button" data-cover="crops">Cultivos</button>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <p class="eyebrow">Polarización</p>
+          <div class="segmented" id="pol-options">
+            <button type="button" data-pol="VV">VV</button>
+            <button type="button" data-pol="VH">VH</button>
+            <button type="button" data-pol="HH">HH</button>
+            <button type="button" data-pol="HV">HV</button>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <p class="eyebrow">Banda</p>
+          <div class="segmented" id="band-options">
+            <button type="button" data-band="X">X</button>
+            <button type="button" data-band="C">C</button>
+            <button type="button" data-band="L">L</button>
+          </div>
+        </div>
+
+        <label class="slider-row">
+          <span>
+            <b id="volume-label">Volumen vegetal</b>
+            <output id="volume-output">65%</output>
+          </span>
+          <input id="volume" type="range" min="0" max="100" step="1" value="65">
+        </label>
+
+        <label class="slider-row">
+          <span>
+            <b>Humedad / contraste dieléctrico</b>
+            <output id="moisture-output">55%</output>
+          </span>
+          <input id="moisture" type="range" min="0" max="100" step="1" value="55">
+        </label>
+
+        <label class="slider-row">
+          <span>
+            <b id="structure-label">Aleatoriedad del dosel</b>
+            <output id="structure-output">70%</output>
+          </span>
+          <input id="structure" type="range" min="0" max="100" step="1" value="70">
+        </label>
+
+        <label class="slider-row">
+          <span>
+            <b>Ángulo de incidencia</b>
+            <output id="incidence-output">38°</output>
+          </span>
+          <input id="incidence" type="range" min="25" max="55" step="1" value="38">
+        </label>
+
+        <div class="button-row">
+          <button id="pulse-button" type="button">Emitir pulso</button>
+          <button id="demo-button" type="button">Demo</button>
+          <button id="pause-button" type="button">Pausar</button>
+        </div>
+
+        <div class="mechanism-bars" aria-label="Mecanismos estimados">
+          <div class="meter-row">
+            <span>Superficie</span>
+            <i><b id="surface-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Volumen</span>
+            <i><b id="volume-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Doble rebote</span>
+            <i><b id="double-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Penetración</span>
+            <i><b id="penetration-meter"></b></i>
+          </div>
+        </div>
+
+        <p class="interpretation" id="interpretation">
+          En árboles, la señal entra al dosel y se dispersa en muchas orientaciones; las polarizaciones cruzadas resaltan la despolarización del volumen.
+        </p>
+      </aside>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

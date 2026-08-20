@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tipos de polarización electromagnética</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="stage-area" aria-label="Animación de tipos de polarización">
+        <div class="stage-top">
+          <div>
+            <a class="back-link" href="../">Visualizaciones SAR</a>
+            <p class="eyebrow">Polarización electromagnética</p>
+            <h1>Lineal, circular y elíptica en una onda radar</h1>
+          </div>
+          <div class="readouts" aria-label="Lecturas de la onda">
+            <div>
+              <span>Tipo</span>
+              <strong id="type-readout">Lineal</strong>
+            </div>
+            <div>
+              <span>Traza del campo</span>
+              <strong id="trace-readout">Línea</strong>
+            </div>
+            <div>
+              <span>Desfase H-V</span>
+              <strong id="phase-readout">0°</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-frame">
+          <canvas id="polar-canvas" aria-label="Onda electromagnética y trayectoria del vector de campo eléctrico"></canvas>
+          <div class="legend" aria-hidden="true">
+            <span><i class="swatch swatch-vertical"></i>Componente vertical</span>
+            <span><i class="swatch swatch-horizontal"></i>Componente horizontal</span>
+            <span><i class="swatch swatch-trace"></i>Trayectoria del campo</span>
+            <span><i class="swatch swatch-vector"></i>Vector E instantáneo</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="controls" aria-label="Controles de polarización">
+        <section class="definition-panel">
+          <p class="eyebrow">Idea central</p>
+          <p>
+            La polarización describe cómo cambia la dirección del campo eléctrico mientras la onda
+            avanza. La forma que dibuja la punta del vector distingue cada tipo.
+          </p>
+        </section>
+
+        <section class="control-section">
+          <p class="eyebrow">Tipo</p>
+          <div class="choice-grid" id="type-options">
+            <button type="button" data-type="lineal">Lineal</button>
+            <button type="button" data-type="circular">Circular</button>
+            <button type="button" data-type="eliptica">Elíptica</button>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <p class="eyebrow">Plano lineal</p>
+          <div class="segmented" id="linear-options">
+            <button type="button" data-linear="vertical">V</button>
+            <button type="button" data-linear="horizontal">H</button>
+            <button type="button" data-linear="diagonal">45°</button>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <p class="eyebrow">Sentido de giro</p>
+          <div class="segmented" id="rotation-options">
+            <button type="button" data-rotation="right">Derecha</button>
+            <button type="button" data-rotation="left">Izquierda</button>
+          </div>
+        </section>
+
+        <label class="slider-row">
+          <span>
+            <b>Velocidad</b>
+            <output id="speed-output">70%</output>
+          </span>
+          <input id="speed" type="range" min="20" max="120" step="1" value="70">
+        </label>
+
+        <div class="button-row">
+          <button id="pulse-button" type="button">Pulso</button>
+          <button id="play-button" type="button" aria-pressed="true">Pausar</button>
+          <button id="reset-button" type="button">Reiniciar</button>
+        </div>
+
+        <section class="component-bars" aria-label="Componentes relativas">
+          <div class="meter-row">
+            <span>Amplitud vertical</span>
+            <i><b id="vertical-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Amplitud horizontal</span>
+            <i><b id="horizontal-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Desfase entre componentes</span>
+            <i><b id="phase-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Elipticidad</span>
+            <i><b id="ellipticity-meter"></b></i>
+          </div>
+        </section>
+
+        <p class="interpretation" id="interpretation">
+          En polarización lineal, la punta del campo eléctrico oscila siempre dentro de un mismo plano.
+        </p>
+      </aside>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

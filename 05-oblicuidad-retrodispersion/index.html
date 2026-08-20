@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Oblicuidad del sensor y retrodispersión SAR</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="stage-area" aria-label="Animación de oblicuidad del sensor SAR">
+        <div class="stage-top">
+          <div>
+            <a class="back-link" href="../">Visualizaciones SAR</a>
+            <p class="eyebrow">Geometría radar · incidencia local</p>
+            <h1>Cómo la mirada oblicua modifica la retrodispersión</h1>
+          </div>
+          <div class="readouts" aria-label="Lecturas geométricas">
+            <div>
+              <span>Incidencia local</span>
+              <strong id="incidence-readout">35°</strong>
+            </div>
+            <div>
+              <span>Slant range</span>
+              <strong id="slant-readout">1.22x</strong>
+            </div>
+            <div>
+              <span>Retorno relativo</span>
+              <strong id="return-readout">56%</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-frame">
+          <canvas id="obliquity-canvas" aria-label="Sensor SAR, nadir, haz oblicuo, swath y retorno al sensor"></canvas>
+          <div class="legend" aria-hidden="true">
+            <span><i class="swatch swatch-nadir"></i>Nadir</span>
+            <span><i class="swatch swatch-beam"></i>Haz oblicuo</span>
+            <span><i class="swatch swatch-swath"></i>Swath iluminado</span>
+            <span><i class="swatch swatch-back"></i>Retrodispersión</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="controls" aria-label="Controles de oblicuidad">
+        <section class="definition-panel">
+          <p class="eyebrow">Idea central</p>
+          <p>
+            Al alejarse del nadir, el haz recorre una distancia oblicua mayor y llega con un ángulo
+            de incidencia más alto. En un blanco distribuido hipotético, eso reduce el retorno medido.
+          </p>
+        </section>
+
+        <label class="slider-row">
+          <span>
+            <b>Ángulo de incidencia</b>
+            <output id="angle-output">35°</output>
+          </span>
+          <input id="angle" type="range" min="15" max="60" step="1" value="35">
+        </label>
+
+        <label class="slider-row">
+          <span>
+            <b>Pendiente local</b>
+            <output id="slope-output">0°</output>
+          </span>
+          <input id="slope" type="range" min="-25" max="25" step="1" value="0">
+        </label>
+
+        <div class="button-row">
+          <button id="pulse-button" type="button">Pulso</button>
+          <button id="demo-button" type="button" aria-pressed="false">Demo</button>
+          <button id="pause-button" type="button">Pausar</button>
+        </div>
+
+        <section class="geometry-bars" aria-label="Efectos geométricos relativos">
+          <div class="meter-row">
+            <span>Ground range</span>
+            <i><b id="ground-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Swath / huella proyectada</span>
+            <i><b id="swath-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Pérdida por distancia oblicua</span>
+            <i><b id="range-loss-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Retrodispersión esperada</span>
+            <i><b id="backscatter-meter"></b></i>
+          </div>
+        </section>
+
+        <p class="interpretation" id="interpretation">
+          Cerca de nadir el trayecto es corto y el área proyectada es menor. Al mirar más oblicuo, el
+          retorno de una superficie hipotética tiende a disminuir.
+        </p>
+      </aside>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
