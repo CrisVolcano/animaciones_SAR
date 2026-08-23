@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Speckle en imágenes SAR</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="stage-area" aria-label="Visualización simple del speckle en una imagen SAR">
+        <div class="stage-top">
+          <div>
+            <a class="back-link" href="../">Visualizaciones SAR</a>
+            <p class="eyebrow">Imagen SAR · interferencia coherente</p>
+            <h1>Qué es el speckle en una imagen SAR</h1>
+          </div>
+          <div class="readouts" aria-label="Lecturas del speckle">
+            <div>
+              <span>Ecos en el píxel</span>
+              <strong id="scatter-readout">12</strong>
+            </div>
+            <div>
+              <span>Suma coherente</span>
+              <strong id="sum-readout">Mixta</strong>
+            </div>
+            <div>
+              <span>Brillo SAR</span>
+              <strong id="brightness-readout">Variable</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-frame">
+          <canvas id="speckle-canvas" aria-label="Comparación entre una superficie homogénea y su imagen SAR con speckle"></canvas>
+          <div class="legend" aria-hidden="true">
+            <span><i class="swatch swatch-scatterer"></i>Dispersores</span>
+            <span><i class="swatch swatch-echo"></i>Ecos con fase</span>
+            <span><i class="swatch swatch-pixel"></i>Píxel SAR</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="controls" aria-label="Controles de speckle SAR">
+        <section class="definition-panel">
+          <p class="eyebrow">Idea central</p>
+          <p>
+            En una celda de resolución hay muchos dispersores. Sus ecos regresan con fases distintas;
+            al sumarse, algunos píxeles quedan claros y otros oscuros.
+          </p>
+        </section>
+
+        <section class="control-section">
+          <p class="eyebrow">Caso dentro del píxel</p>
+          <div class="choice-grid" id="case-options">
+            <button type="button" data-case="bright">Claro</button>
+            <button type="button" data-case="dark">Oscuro</button>
+            <button type="button" data-case="mixed" class="active">Mixto</button>
+          </div>
+        </section>
+
+        <div class="button-row">
+          <button id="phase-button" type="button">Animar fases</button>
+        </div>
+
+        <section class="signal-bars" aria-label="Relación entre suma de fases y brillo SAR">
+          <div class="meter-row">
+            <span>Refuerzo de la suma</span>
+            <i><b id="sum-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Brillo del píxel</span>
+            <i><b id="brightness-meter"></b></i>
+          </div>
+        </section>
+
+        <p class="interpretation" id="interpretation">
+          Aunque la cobertura sea homogénea, cada píxel contiene una combinación distinta de ecos.
+          Esa suma coherente genera el patrón granular.
+        </p>
+      </aside>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

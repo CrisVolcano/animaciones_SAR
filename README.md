@@ -15,6 +15,7 @@ Sitio publicado:
 - `05-oblicuidad-retrodispersion/`: geometría de mirada oblicua, incidencia local, swath y retorno relativo.
 - `06-apertura-sintetica/`: movimiento del sensor, apertura sintética y resolución azimutal SAR.
 - `07-activa-vs-pasiva/`: comparación animada entre energía natural pasiva y pulso activo con eco de retorno.
+- `08-speckle-sar/`: generación del speckle por suma coherente de ecos dentro de una celda de resolución.
 
 Con el servidor local activo, abre:
 
