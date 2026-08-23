@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Teledetección activa vs pasiva</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="stage-area" aria-label="Animación comparativa de teledetección activa y pasiva">
+        <div class="stage-top">
+          <div>
+            <a class="back-link" href="../">Visualizaciones SAR</a>
+            <p class="eyebrow">Fuente de energía · medición remota</p>
+            <h1>Contraste entre teledetección pasiva y activa</h1>
+          </div>
+          <div class="readouts" aria-label="Lecturas de energía y condiciones">
+            <div>
+              <span>Pasiva</span>
+              <strong id="passive-readout">Alta</strong>
+            </div>
+            <div>
+              <span>Activa</span>
+              <strong id="active-readout">Propia</strong>
+            </div>
+            <div>
+              <span>Escena</span>
+              <strong id="condition-readout">Día</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-frame">
+          <canvas id="remote-canvas" aria-label="Dos sensores observando una misma superficie: uno pasivo y otro activo"></canvas>
+          <div class="legend" aria-hidden="true">
+            <span><i class="swatch swatch-sun"></i>Energía natural</span>
+            <span><i class="swatch swatch-reflect"></i>Señal medida</span>
+            <span><i class="swatch swatch-pulse"></i>Pulso emitido</span>
+            <span><i class="swatch swatch-echo"></i>Eco de retorno</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="controls" aria-label="Controles de comparación activa y pasiva">
+        <section class="definition-panel">
+          <p class="eyebrow">Idea central</p>
+          <p>
+            Un sensor pasivo registra energía natural reflejada o emitida por la superficie. Un sensor
+            activo ilumina el blanco con su propia señal y mide el eco que regresa.
+          </p>
+        </section>
+
+        <section class="control-section">
+          <p class="eyebrow">Condición de iluminación</p>
+          <div class="choice-grid" id="scene-options">
+            <button type="button" data-mode="cycle" class="active">Ciclo</button>
+            <button type="button" data-mode="day">Día</button>
+            <button type="button" data-mode="night">Noche</button>
+          </div>
+        </section>
+
+        <div class="button-row">
+          <button id="pause-button" type="button">Pausar</button>
+          <button id="cloud-button" type="button" aria-pressed="true">Nube</button>
+        </div>
+
+        <section class="signal-bars" aria-label="Disponibilidad relativa de señal">
+          <div class="meter-row">
+            <span>Señal pasiva reflejada</span>
+            <i><b id="passive-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Señal activa de retorno</span>
+            <i><b id="active-meter"></b></i>
+          </div>
+        </section>
+
+        <section class="contrast-list" aria-label="Resumen de contraste">
+          <div>
+            <b>Pasiva</b>
+            <span>Depende de fuentes naturales: Sol, emisión térmica o microondas naturales.</span>
+          </div>
+          <div>
+            <b>Activa</b>
+            <span>Controla la iluminación: emite un pulso y mide la retrodispersión.</span>
+          </div>
+        </section>
+
+        <p class="interpretation" id="interpretation">
+          Con luz solar, la pasiva recibe una señal reflejada clara. La activa emite su propio pulso,
+          por eso el retorno se mantiene comparable.
+        </p>
+      </aside>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
