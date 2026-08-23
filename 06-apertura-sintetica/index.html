@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Cómo el movimiento de una antena SAR crea una apertura sintética.">
+    <title>Apertura sintética SAR</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="stage-area" aria-label="Animación conceptual de apertura sintética SAR">
+        <div class="stage-top">
+          <div>
+            <a class="back-link" href="../">Visualizaciones SAR</a>
+            <p class="eyebrow">Apertura real · apertura sintética</p>
+            <h1>Cómo el movimiento del radar crea una antena virtual</h1>
+          </div>
+          <div class="readouts" aria-label="Lecturas de apertura sintética">
+            <div>
+              <span>Haz azimutal β</span>
+              <strong id="beam-readout">0.53°</strong>
+            </div>
+            <div>
+              <span>Distancia R<sub>0</sub></span>
+              <strong id="range-readout">150 km</strong>
+            </div>
+            <div>
+              <span>Apertura LSA</span>
+              <strong id="aperture-readout">14.0 m</strong>
+            </div>
+            <div>
+              <span>Resolución azimutal SAR</span>
+              <strong id="resolution-readout">3.0 m</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-frame">
+          <canvas id="aperture-canvas" aria-label="Sensor SAR en movimiento, haz azimutal, blanco y apertura sintética"></canvas>
+          <div class="legend" aria-hidden="true">
+            <span><i class="swatch swatch-beam"></i>Haz instantáneo</span>
+            <span><i class="swatch swatch-track"></i>Trayectoria útil</span>
+            <span><i class="swatch swatch-look"></i>Observaciones de P</span>
+            <span><i class="swatch swatch-sar"></i>Resolución SAR</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="controls" aria-label="Controles de apertura sintética">
+        <section class="definition-panel">
+          <p class="eyebrow">Idea central</p>
+          <p>
+            Mientras el sensor avanza, un mismo blanco permanece dentro del haz durante varias
+            posiciones. SAR combina esas observaciones coherentemente y sintetiza una apertura
+            mucho mayor que la antena física.
+          </p>
+        </section>
+
+        <label class="slider-row">
+          <span>
+            <b>Longitud de antena L<sub>a</sub></b>
+            <output id="antenna-output">6.0 m</output>
+          </span>
+          <input id="antenna" type="range" min="2" max="12" step="0.5" value="6">
+        </label>
+
+        <label class="slider-row">
+          <span>
+            <b>Distancia R<sub>0</sub></b>
+            <output id="range-output">150 km</output>
+          </span>
+          <input id="range" type="range" min="50000" max="850000" step="50000" value="150000">
+          <small class="small-note">R<sub>0</sub> controla la altura visual y el tamaño de la huella sobre el terreno.</small>
+        </label>
+
+        <section class="control-section">
+          <p class="eyebrow">Longitud de onda</p>
+          <div class="choice-grid" id="band-options">
+            <button type="button" data-band="X" data-lambda="0.031">Banda X</button>
+            <button type="button" data-band="C" data-lambda="0.056" class="active">Banda C</button>
+            <button type="button" data-band="L" data-lambda="0.238">Banda L</button>
+          </div>
+          <p class="small-note" id="lambda-note">λ = 5.6 cm</p>
+        </section>
+
+        <section class="control-section">
+          <p class="eyebrow">Secuencia conceptual</p>
+          <div class="step-grid" id="step-options">
+            <button type="button" data-step="0" class="active">1 Antena</button>
+            <button type="button" data-step="1">2 Movimiento</button>
+            <button type="button" data-step="2">3 Observaciones</button>
+            <button type="button" data-step="3">4 Síntesis</button>
+            <button type="button" data-step="4">5 Comparación</button>
+          </div>
+        </section>
+
+        <div class="button-row">
+          <button id="pulse-button" type="button">Recorrer</button>
+          <button id="demo-button" type="button" aria-pressed="false">Demo</button>
+          <button id="pause-button" type="button">Pausar</button>
+        </div>
+
+        <section class="geometry-bars" aria-label="Relaciones geométricas">
+          <div class="meter-row">
+            <span>Ancho del haz β</span>
+            <i><b id="beam-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Longitud de apertura sintética</span>
+            <i><b id="aperture-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Huella real (empeora al aumentar R<sub>0</sub>)</span>
+            <i><b id="slar-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Resolución azimutal SAR</span>
+            <i><b id="sar-meter"></b></i>
+          </div>
+        </section>
+
+        <p class="interpretation" id="interpretation">
+          Una antena más corta produce un haz azimutal más ancho. El blanco permanece iluminado
+          durante una trayectoria mayor y puede observarse desde más posiciones.
+        </p>
+      </aside>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
