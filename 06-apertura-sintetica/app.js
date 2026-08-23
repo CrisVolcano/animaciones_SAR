@@ -3,14 +3,19 @@ const ctx = canvas.getContext("2d");
 
 const ui = {
   beamReadout: document.getElementById("beam-readout"),
-  rangeReadout: document.getElementById("range-readout"),
   apertureReadout: document.getElementById("aperture-readout"),
+  slarResolutionReadout: document.getElementById("slar-resolution-readout"),
   resolutionReadout: document.getElementById("resolution-readout"),
   interpretation: document.getElementById("interpretation"),
   antenna: document.getElementById("antenna"),
   range: document.getElementById("range"),
   antennaOutput: document.getElementById("antenna-output"),
   rangeOutput: document.getElementById("range-output"),
+  incidence: document.getElementById("incidence"),
+  slope: document.getElementById("slope"),
+  incidenceOutput: document.getElementById("incidence-output"),
+  slopeOutput: document.getElementById("slope-output"),
+  localIncidenceNote: document.getElementById("local-incidence-note"),
   lambdaNote: document.getElementById("lambda-note"),
   pulseButton: document.getElementById("pulse-button"),
   demoButton: document.getElementById("demo-button"),
@@ -38,7 +43,9 @@ const colors = {
 
 const state = {
   antenna: 6,
-  range: 150000,
+  range: 50000,
+  incidence: 35,
+  slope: 0,
   lambda: 0.056,
   band: "C",
   step: 0,
@@ -53,11 +60,11 @@ const state = {
 let stage = { width: 0, height: 0, dpr: 1 };
 
 const stepText = [
-  "La antena física controla el ancho del haz azimutal β. Una antena más corta produce un haz más ancho.",
-  "El sensor avanza con velocidad V. R(x) es la distancia oblicua desde cada posición x hasta el blanco fijo P; R₀ es la distancia de referencia en el centro de la apertura.",
-  "P permanece dentro del haz entre x₁ y x₂. El radar lo observa repetidamente y cada posición aporta una medición coherente.",
-  "SAR combina las observaciones tomadas a lo largo de LSA. Esa trayectoria se comporta como una antena virtual mucho más larga que la antena física.",
-  "La antena física corta genera un haz ancho y una celda azimutal grande. SAR corrige esa pérdida: combina las observaciones y crea una apertura virtual larga, equivalente a un haz mucho más estrecho. La resolución radial o en rango depende del ancho de banda.",
+  "La longitud física de la antena controla el ancho del haz azimutal. Una antena más corta produce, en esta aproximación, un haz más ancho.",
+  "El sensor se desplaza a lo largo de la trayectoria. Un blanco fijo P entra en el haz, permanece iluminado durante un intervalo y finalmente sale de él.",
+  "Mientras P permanece dentro del haz, el radar lo observa desde muchas posiciones sucesivas. Cada observación aporta información coherente del mismo blanco.",
+  "El procesamiento SAR combina coherentemente esas observaciones. La trayectoria útil se comporta como una antena virtual: la apertura sintética.",
+  "Al aumentar R0, aumentan tanto la longitud de la apertura sintética LSA como la resolución azimutal que tendría una antena real (≈ R0β). En cambio, en el modelo SAR idealizado la resolución azimutal permanece aproximadamente La/2. LSA no representa la resolución en rango.",
 ];
 
 function clamp(value, min, max) {
@@ -66,6 +73,17 @@ function clamp(value, min, max) {
 
 function mix(a, b, t) {
   return a + (b - a) * t;
+}
+
+function logNormalize(value, min, max) {
+  const safeValue = clamp(value, min, max);
+  return (Math.log(safeValue) - Math.log(min)) / (Math.log(max) - Math.log(min));
+}
+
+function formatDistance(value) {
+  if (value < 1000) return `${Math.round(value)} m`;
+  if (value < 10000) return `${(value / 1000).toFixed(1)} km`;
+  return `${Math.round(value / 1000)} km`;
 }
 
 function hexToRgb(hex) {
@@ -85,12 +103,16 @@ function metricsFor(values = state) {
   const aperture = beta * values.range;
   const sarResolution = values.antenna / 2;
   const slarResolution = aperture;
+  const localIncidence = Math.abs(values.incidence - values.slope);
 
-  return { beta, betaDeg, aperture, sarResolution, slarResolution };
-}
-
-function formatDistance(value, decimals = 0) {
-  return value >= 1000 ? `${(value / 1000).toFixed(decimals)} km` : `${value.toFixed(decimals)} m`;
+  return {
+    beta,
+    betaDeg,
+    aperture,
+    sarResolution,
+    slarResolution,
+    localIncidence,
+  };
 }
 
 function syncUI() {
@@ -98,18 +120,26 @@ function syncUI() {
 
   ui.antenna.value = String(state.antenna);
   ui.range.value = String(state.range);
+  ui.incidence.value = String(state.incidence);
+  ui.slope.value = String(state.slope);
+
   ui.antennaOutput.value = `${state.antenna.toFixed(1)} m`;
   ui.rangeOutput.value = formatDistance(state.range);
-  ui.rangeReadout.textContent = formatDistance(state.range);
+  ui.incidenceOutput.value = `${state.incidence.toFixed(0)}°`;
+  ui.slopeOutput.value = `${state.slope.toFixed(0)}°`;
   ui.lambdaNote.textContent = `λ = ${(state.lambda * 100).toFixed(1)} cm`;
+  ui.localIncidenceNote.textContent =
+    `Incidencia local aproximada: ${metrics.localIncidence.toFixed(1)}°. ` +
+    `Pendiente positiva = ladera orientada hacia el radar.`;
 
   ui.beamReadout.textContent = `${metrics.betaDeg.toFixed(2)}°`;
-  ui.apertureReadout.textContent = formatDistance(metrics.aperture, 1);
+  ui.apertureReadout.textContent = formatDistance(metrics.aperture);
+  ui.slarResolutionReadout.textContent = formatDistance(metrics.slarResolution);
   ui.resolutionReadout.textContent = `${metrics.sarResolution.toFixed(1)} m`;
 
   const beamNorm = clamp((metrics.betaDeg - 0.15) / 6.7, 0, 1);
-  const apertureNorm = clamp((Math.log10(metrics.aperture) - 2) / 3, 0, 1);
-  const slarNorm = apertureNorm;
+  const apertureNorm = logNormalize(metrics.aperture, 8, 24000);
+  const slarNorm = logNormalize(metrics.slarResolution, 8, 24000);
   const sarNorm = clamp(metrics.sarResolution / 6, 0, 1);
 
   ui.beamMeter.style.width = `${Math.max(2, Math.round(beamNorm * 100))}%`;
@@ -150,17 +180,21 @@ function sceneGeometry() {
   const metrics = metricsFor();
 
   const target = { x: w * 0.56, y: h * 0.76 };
-  const rangeNorm = clamp((state.range - 50000) / 800000, 0, 1);
-  const trackY = mix(h * 0.35, h * 0.10, rangeNorm);
 
-  // Escala conceptual: exagerada para que la relación sea visible.
-  const apertureNorm = clamp((Math.log10(metrics.aperture) - 2) / 3, 0.06, 1);
-  const aperturePx = mix(w * 0.18, w * 0.68, apertureNorm);
+  // R0 se representa con una escala logarítmica para que el cambio vertical
+  // entre 3 km y 200 km sea visible, pero no exagerado.
+  const rangeNorm = logNormalize(state.range, 3000, 200000);
+  const trackY = mix(h * 0.27, h * 0.11, rangeNorm);
+
+  // La longitud visual de la apertura también usa escala logarítmica.
+  const apertureNorm = logNormalize(metrics.aperture, 8, 24000);
+  const aperturePx = mix(w * 0.17, w * 0.66, apertureNorm);
   const left = target.x - aperturePx / 2;
   const right = target.x + aperturePx / 2;
   const sensor = { x: mix(left, right, state.position), y: trackY };
 
-  const beamHalf = aperturePx / 2;
+  // La huella del haz aumenta con β y con R0, pero se limita visualmente.
+  const beamHalf = mix(w * 0.05, w * 0.20, apertureNorm);
 
   return { target, sensor, trackY, left, right, aperturePx, beamHalf };
 }
@@ -245,7 +279,7 @@ function drawTrack(g) {
   ctx.fillStyle = "rgba(233,242,244,0.68)";
   ctx.font = "700 12px Inter, system-ui, sans-serif";
   ctx.textAlign = "left";
-  ctx.fillText("V  Dirección de vuelo →", stage.width * 0.09, g.trackY - 16);
+  ctx.fillText("Dirección de vuelo →", stage.width * 0.09, g.trackY - 16);
   ctx.restore();
 }
 
@@ -261,55 +295,6 @@ function drawTick(x, y, label) {
   ctx.font = "700 12px Inter, system-ui, sans-serif";
   ctx.textAlign = "center";
   ctx.fillText(label, x, y + 28);
-  ctx.restore();
-}
-
-function drawLineLabel(from, to, label, color, offset = -9) {
-  const angle = Math.atan2(to.y - from.y, to.x - from.x);
-  const midX = (from.x + to.x) / 2;
-  const midY = (from.y + to.y) / 2;
-
-  ctx.save();
-  ctx.translate(midX, midY);
-  ctx.rotate(angle);
-  ctx.fillStyle = "rgba(7,16,24,0.78)";
-  const labelWidth = ctx.measureText(label).width + 12;
-  ctx.fillRect(-labelWidth / 2, offset - 12, labelWidth, 18);
-  ctx.fillStyle = color;
-  ctx.textAlign = "center";
-  ctx.fillText(label, 0, offset + 1);
-  ctx.restore();
-}
-
-function drawRangeGeometry(g) {
-  if (state.step < 1) return;
-
-  const reference = { x: g.target.x, y: g.trackY };
-  const alongTrackOffset = (state.position - 0.5) * metricsFor().aperture;
-  const instantaneousRange = Math.hypot(state.range, alongTrackOffset);
-  const rangeLabel = `R(x)  ${formatDistance(instantaneousRange, 1)}`;
-
-  ctx.save();
-  ctx.font = "800 12px Inter, system-ui, sans-serif";
-  ctx.lineWidth = 1.5;
-
-  ctx.strokeStyle = "rgba(255,255,255,0.46)";
-  ctx.setLineDash([5, 6]);
-  ctx.beginPath();
-  ctx.moveTo(reference.x, reference.y + 8);
-  ctx.lineTo(g.target.x, g.target.y - 13);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  drawLineLabel(reference, g.target, `R₀  ${formatDistance(state.range)}`, "#ffffff", 13);
-
-  if (Math.abs(g.sensor.x - reference.x) > stage.width * 0.035) {
-    ctx.strokeStyle = rgba(colors.look, 0.72);
-    ctx.beginPath();
-    ctx.moveTo(g.sensor.x, g.sensor.y + 18);
-    ctx.lineTo(g.target.x, g.target.y - 13);
-    ctx.stroke();
-    drawLineLabel(g.sensor, g.target, rangeLabel, colors.look);
-  }
   ctx.restore();
 }
 
@@ -340,18 +325,13 @@ function drawBeam(g) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  const centerAngle = Math.atan2(g.target.y - g.sensor.y, g.target.x - g.sensor.x);
-  const leftAngle = Math.atan2(groundY - g.sensor.y, leftGround - g.sensor.x);
-  const arcRadius = 42;
-  ctx.strokeStyle = rgba(colors.beam, 0.95);
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(g.sensor.x, g.sensor.y, arcRadius, leftAngle, centerAngle);
-  ctx.stroke();
-  ctx.fillStyle = colors.beam;
-  ctx.font = "800 13px Georgia, serif";
-  ctx.textAlign = "center";
-  ctx.fillText("β", g.sensor.x - 24, g.sensor.y + 48);
+  const labelX = mix(g.sensor.x, g.target.x, 0.44);
+  const labelY = mix(g.sensor.y, g.target.y, 0.44);
+  ctx.fillStyle = "rgba(233,242,244,0.86)";
+  ctx.font = "750 12px Inter, system-ui, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText(`R₀ = ${formatDistance(state.range)}`, labelX + 10, labelY - 8);
+
   ctx.restore();
 }
 
@@ -437,115 +417,38 @@ function drawComparison(g) {
 
   const metrics = metricsFor();
   const { width: w, height: h } = stage;
-  const compact = w < 700;
-  const gap = compact ? 12 : 22;
-  const cardWidth = compact ? w - 32 : (w - gap * 3) / 2;
-  const cardHeight = compact ? Math.min(118, h * 0.27) : Math.min(240, h * 0.52);
-  const firstX = compact ? 16 : gap;
-  const firstY = compact ? 88 : h * 0.31;
-  const secondX = compact ? 16 : firstX + cardWidth + gap;
-  const secondY = compact ? firstY + cardHeight + gap : firstY;
-
-  function comparisonCard(x, y, width, height, synthetic) {
-    const accent = synthetic ? colors.sar : colors.slar;
-    const antennaX = x + width * 0.18;
-    const centerY = y + height * 0.58;
-    const beamEndX = x + width * 0.86;
-    const beamHalf = synthetic ? height * 0.045 : height * 0.25;
-    const antennaHalf = synthetic ? height * 0.27 : height * 0.09;
-
-    ctx.fillStyle = "rgba(10,24,33,0.94)";
-    ctx.strokeStyle = rgba(accent, 0.75);
-    ctx.lineWidth = 2;
-    roundRect(x, y, width, height, 10);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = accent;
-    ctx.font = `850 ${compact ? 11 : 13}px Inter, system-ui, sans-serif`;
-    ctx.textAlign = "left";
-    ctx.fillText(synthetic ? "APERTURA SINTÉTICA LARGA" : "ANTENA FÍSICA CORTA", x + 14, y + 23);
-
-    ctx.fillStyle = rgba(accent, synthetic ? 0.18 : 0.25);
-    ctx.beginPath();
-    ctx.moveTo(antennaX, centerY);
-    ctx.lineTo(beamEndX, centerY - beamHalf);
-    ctx.lineTo(beamEndX, centerY + beamHalf);
-    ctx.closePath();
-    ctx.fill();
-    ctx.strokeStyle = rgba(accent, 0.85);
-    ctx.stroke();
-
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = synthetic ? 7 : 4;
-    ctx.beginPath();
-    ctx.moveTo(antennaX, centerY - antennaHalf);
-    ctx.lineTo(antennaX, centerY + antennaHalf);
-    ctx.stroke();
-
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(beamEndX, centerY - beamHalf);
-    ctx.lineTo(beamEndX, centerY + beamHalf);
-    ctx.stroke();
-
-    const targetX = beamEndX - 7;
-    if (synthetic) {
-      ctx.fillStyle = "#ffffff";
-      for (const offset of [-8, 8]) {
-        ctx.beginPath();
-        ctx.arc(targetX, centerY + offset, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = colors.sar;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      }
-    } else {
-      ctx.save();
-      ctx.fillStyle = rgba(colors.slar, 0.75);
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = colors.slar;
-      ctx.beginPath();
-      ctx.ellipse(targetX, centerY, 9, 19, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-
-    ctx.fillStyle = "#e9f2f4";
-    ctx.font = `800 ${compact ? 10 : 12}px Inter, system-ui, sans-serif`;
-    ctx.textAlign = "center";
-    const result = synthetic
-      ? `Celda azimutal: ${formatDistance(metrics.sarResolution, 1)}`
-      : `Huella azimutal: ${formatDistance(metrics.slarResolution, 1)}`;
-    ctx.fillText(result, x + width / 2, y + height - 29);
-    ctx.fillStyle = accent;
-    ctx.fillText(synthetic ? "✓  DOS BLANCOS SEPARADOS" : "×  DOS BLANCOS MEZCLADOS", x + width / 2, y + height - 12);
-  }
+  const baseX = w * 0.08;
+  const baseY = h * 0.47;
+  const slarWidth = clamp((metrics.slarResolution / 180) * w * 0.24, 60, w * 0.28);
+  const sarWidth = clamp((metrics.sarResolution / 8) * w * 0.12, 22, w * 0.12);
 
   ctx.save();
-  ctx.fillStyle = "rgba(3,10,15,0.78)";
-  ctx.fillRect(0, 0, w, h);
-  ctx.fillStyle = "#ffffff";
-  ctx.font = `900 ${compact ? 12 : 18}px Inter, system-ui, sans-serif`;
-  ctx.textAlign = "center";
-  if (compact) {
-    ctx.fillText("SAR CORRIGE LA PÉRDIDA", w / 2, 23);
-    ctx.fillText("DE RESOLUCIÓN AZIMUTAL", w / 2, 39);
-  } else {
-    ctx.fillText("SAR CORRIGE LA PÉRDIDA DE RESOLUCIÓN AZIMUTAL", w / 2, 28);
-  }
-  ctx.fillStyle = colors.look;
-  ctx.font = `750 ${compact ? 9 : 12}px Inter, system-ui, sans-serif`;
-  if (compact) {
-    ctx.fillText("observaciones → procesamiento coherente", w / 2, 58);
-    ctx.fillText("→ apertura virtual larga", w / 2, 72);
-  } else {
-    ctx.fillText("observaciones sucesivas  →  procesamiento coherente  →  antena virtual", w / 2, 48);
-  }
+  ctx.fillStyle = "rgba(7,16,24,0.76)";
+  ctx.strokeStyle = "rgba(255,255,255,0.12)";
+  ctx.lineWidth = 1;
+  roundRect(baseX - 16, baseY - 40, w * 0.34, 140, 8);
+  ctx.fill();
+  ctx.stroke();
 
-  comparisonCard(firstX, firstY, cardWidth, cardHeight, false);
-  comparisonCard(secondX, secondY, cardWidth, cardHeight, true);
+  ctx.font = "750 12px Inter, system-ui, sans-serif";
+  ctx.fillStyle = "rgba(233,242,244,0.82)";
+  ctx.textAlign = "left";
+  ctx.fillText(
+    `Resolución azimutal apertura real ≈ ${formatDistance(metrics.slarResolution)}`,
+    baseX,
+    baseY - 14
+  );
+  ctx.fillStyle = colors.slar;
+  ctx.fillRect(baseX, baseY, slarWidth, 11);
+
+  ctx.fillStyle = "rgba(233,242,244,0.82)";
+  ctx.fillText(
+    `Resolución azimutal SAR ≈ ${metrics.sarResolution.toFixed(1)} m`,
+    baseX,
+    baseY + 45
+  );
+  ctx.fillStyle = colors.sar;
+  ctx.fillRect(baseX, baseY + 58, sarWidth, 11);
   ctx.restore();
 }
 
@@ -592,6 +495,91 @@ function drawSynthesisGlow(g) {
   ctx.restore();
 }
 
+function drawLocalIncidenceInset() {
+  const metrics = metricsFor();
+  const { width: w, height: h } = stage;
+  const boxW = Math.min(245, w * 0.31);
+  const boxH = 150;
+  const x = w - boxW - 22;
+  const y = h - boxH - 54;
+  const px = x + boxW * 0.58;
+  const py = y + boxH * 0.70;
+
+  const slopeRad = (state.slope * Math.PI) / 180;
+  const incidenceRad = (state.incidence * Math.PI) / 180;
+  const tangentAngle = -slopeRad;
+  const normalAngle = tangentAngle - Math.PI / 2;
+  const rayAngle = -Math.PI / 2 - incidenceRad;
+
+  ctx.save();
+  ctx.fillStyle = "rgba(7,16,24,0.80)";
+  ctx.strokeStyle = "rgba(255,255,255,0.14)";
+  ctx.lineWidth = 1;
+  roundRect(x, y, boxW, boxH, 8);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(233,242,244,0.90)";
+  ctx.font = "800 12px Inter, system-ui, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("Incidencia local", x + 14, y + 22);
+
+  // Superficie local.
+  const halfSurface = 72;
+  ctx.strokeStyle = "#a98b6f";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(
+    px - Math.cos(tangentAngle) * halfSurface,
+    py - Math.sin(tangentAngle) * halfSurface
+  );
+  ctx.lineTo(
+    px + Math.cos(tangentAngle) * halfSurface,
+    py + Math.sin(tangentAngle) * halfSurface
+  );
+  ctx.stroke();
+
+  // Normal local.
+  const normalLen = 58;
+  ctx.strokeStyle = rgba(colors.sar, 0.95);
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(px, py);
+  ctx.lineTo(
+    px + Math.cos(normalAngle) * normalLen,
+    py + Math.sin(normalAngle) * normalLen
+  );
+  ctx.stroke();
+
+  // Línea hacia el radar.
+  const rayLen = 82;
+  ctx.strokeStyle = rgba(colors.beam, 0.95);
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 5]);
+  ctx.beginPath();
+  ctx.moveTo(px, py);
+  ctx.lineTo(
+    px + Math.cos(rayAngle) * rayLen,
+    py + Math.sin(rayAngle) * rayLen
+  );
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Arco conceptual del ángulo local.
+  const start = Math.min(normalAngle, rayAngle);
+  const end = Math.max(normalAngle, rayAngle);
+  ctx.strokeStyle = "rgba(233,242,244,0.80)";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(px, py, 28, start, end);
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(233,242,244,0.82)";
+  ctx.font = "700 11px Inter, system-ui, sans-serif";
+  ctx.fillText(`θ local ≈ ${metrics.localIncidence.toFixed(1)}°`, x + 14, y + boxH - 14);
+  ctx.restore();
+}
+
 function drawScene() {
   resizeCanvas();
   const g = sceneGeometry();
@@ -603,11 +591,11 @@ function drawScene() {
   drawSynthesisGlow(g);
   drawObservations(g);
   drawBeam(g);
-  drawRangeGeometry(g);
   drawTarget(g);
+  drawComparison(g);
   drawSensor(g);
   drawPulse(g);
-  drawComparison(g);
+  drawLocalIncidenceInset();
 }
 
 function setStep(step) {
@@ -683,6 +671,18 @@ ui.antenna.addEventListener("input", (event) => {
 ui.range.addEventListener("input", (event) => {
   state.demo = false;
   state.range = Number(event.target.value);
+  syncUI();
+});
+
+ui.incidence.addEventListener("input", (event) => {
+  state.demo = false;
+  state.incidence = Number(event.target.value);
+  syncUI();
+});
+
+ui.slope.addEventListener("input", (event) => {
+  state.demo = false;
+  state.slope = Number(event.target.value);
   syncUI();
 });
 

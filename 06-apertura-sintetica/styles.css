@@ -106,8 +106,8 @@ h1 {
   display: grid;
   flex: 0 0 auto;
   gap: 8px;
-  grid-template-columns: repeat(4, minmax(94px, 1fr));
-  min-width: min(470px, 100%);
+  grid-template-columns: repeat(4, minmax(110px, 1fr));
+  min-width: min(670px, 100%);
 }
 
 .readouts div {
@@ -326,6 +326,21 @@ input[type="range"] {
 #slar-meter { background: var(--slar); }
 #sar-meter { background: var(--sar); }
 
+.formula-panel {
+  background: #eef4f7;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 5px;
+  padding: 12px 14px;
+}
+
+.formula-panel p {
+  color: #34434d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.95rem;
+}
+
 .interpretation {
   background: #17222b;
   border-radius: 8px;
@@ -399,5 +414,18 @@ input[type="range"] {
 
   .legend {
     gap: 8px 12px;
+  }
+}
+
+
+/* Ajuste del módulo de apertura sintética: cuatro lecturas comparativas */
+.readouts span {
+  line-height: 1.2;
+}
+
+@media (max-width: 1250px) and (min-width: 621px) {
+  .readouts {
+    grid-template-columns: repeat(2, minmax(130px, 1fr));
+    min-width: min(430px, 100%);
   }
 }

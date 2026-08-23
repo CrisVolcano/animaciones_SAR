@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Cómo el movimiento de una antena SAR crea una apertura sintética.">
     <title>Apertura sintética SAR</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="styles.css">
@@ -23,12 +22,12 @@
               <strong id="beam-readout">0.53°</strong>
             </div>
             <div>
-              <span>Distancia R<sub>0</sub></span>
-              <strong id="range-readout">150 km</strong>
+              <span>Apertura sintética L<sub>SA</sub></span>
+              <strong id="aperture-readout">14.0 m</strong>
             </div>
             <div>
-              <span>Apertura LSA</span>
-              <strong id="aperture-readout">14.0 m</strong>
+              <span>Resolución azimutal apertura real</span>
+              <strong id="slar-resolution-readout">14.0 m</strong>
             </div>
             <div>
               <span>Resolución azimutal SAR</span>
@@ -56,6 +55,12 @@
             posiciones. SAR combina esas observaciones coherentemente y sintetiza una apertura
             mucho mayor que la antena física.
           </p>
+          <p class="small-note">
+            L<sub>SA</sub> es la longitud de la apertura sintética, no la resolución en rango.
+            En esta aproximación, la huella/resolución azimutal de una antena real es
+            aproximadamente R<sub>0</sub>β, mientras que la resolución azimutal SAR idealizada
+            se mantiene aproximadamente en L<sub>a</sub>/2.
+          </p>
         </section>
 
         <label class="slider-row">
@@ -68,11 +73,11 @@
 
         <label class="slider-row">
           <span>
-            <b>Distancia R<sub>0</sub></b>
-            <output id="range-output">150 km</output>
+            <b>Distancia oblicua R<sub>0</sub></b>
+            <output id="range-output">50 km</output>
           </span>
-          <input id="range" type="range" min="50000" max="850000" step="50000" value="150000">
-          <small class="small-note">R<sub>0</sub> controla la altura visual y el tamaño de la huella sobre el terreno.</small>
+          <input id="range" type="range" min="3000" max="200000" step="1000" value="50000">
+          <small class="small-note">R<sub>0</sub> es la distancia sensor–blanco; la altura del dibujo es esquemática.</small>
         </label>
 
         <section class="control-section">
@@ -83,6 +88,30 @@
             <button type="button" data-band="L" data-lambda="0.238">Banda L</button>
           </div>
           <p class="small-note" id="lambda-note">λ = 5.6 cm</p>
+        </section>
+
+        <section class="control-section">
+          <p class="eyebrow">Incidencia local</p>
+
+          <label class="slider-row">
+            <span>
+              <b>Ángulo de incidencia θ</b>
+              <output id="incidence-output">35°</output>
+            </span>
+            <input id="incidence" type="range" min="20" max="50" step="1" value="35">
+          </label>
+
+          <label class="slider-row">
+            <span>
+              <b>Pendiente local α</b>
+              <output id="slope-output">0°</output>
+            </span>
+            <input id="slope" type="range" min="-20" max="20" step="1" value="0">
+          </label>
+
+          <p class="small-note" id="local-incidence-note">
+            Incidencia local aproximada: 35°. Pendiente positiva = ladera orientada hacia el radar.
+          </p>
         </section>
 
         <section class="control-section">
@@ -112,7 +141,7 @@
             <i><b id="aperture-meter"></b></i>
           </div>
           <div class="meter-row">
-            <span>Huella real (empeora al aumentar R<sub>0</sub>)</span>
+            <span>Resolución azimutal de apertura real</span>
             <i><b id="slar-meter"></b></i>
           </div>
           <div class="meter-row">
