@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Distorsiones geométricas por relieve en SAR</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="stage-area" aria-label="Animación de distorsiones geométricas SAR por relieve">
+        <div class="stage-top">
+          <div>
+            <a class="back-link" href="../">Visualizaciones SAR</a>
+            <p class="eyebrow">Geometría radar · relieve</p>
+            <h1>Acortamiento, inversión por relieve y sombra</h1>
+          </div>
+
+          <div class="readouts" aria-label="Lecturas geométricas">
+            <div>
+              <span>Incidencia θ</span>
+              <strong id="incidence-readout">35°</strong>
+            </div>
+            <div>
+              <span>Pendiente hacia sensor α</span>
+              <strong id="slope-readout">22°</strong>
+            </div>
+            <div>
+              <span>Incidencia local</span>
+              <strong id="local-readout">13°</strong>
+            </div>
+            <div>
+              <span>Efecto dominante</span>
+              <strong id="effect-readout">Acortamiento</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-frame">
+          <canvas id="terrain-canvas" aria-label="Sensor SAR observando una montaña y su representación en rango radar"></canvas>
+          <div class="legend" aria-hidden="true">
+            <span><i class="swatch swatch-beam"></i>Haz / líneas de visión</span>
+            <span><i class="swatch swatch-near"></i>Ladera hacia sensor</span>
+            <span><i class="swatch swatch-far"></i>Ladera opuesta</span>
+            <span><i class="swatch swatch-shadow"></i>Sombra radar</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="controls" aria-label="Controles de distorsiones por relieve">
+        <section class="definition-panel">
+          <p class="eyebrow">Idea central</p>
+          <p>
+            SAR ordena los objetos por su <strong>distancia oblicua al sensor</strong>. El relieve puede
+            comprimir, invertir o eliminar partes de esa geometría en la imagen radar.
+          </p>
+        </section>
+
+        <div class="mode-row" aria-label="Efecto a destacar">
+          <button class="mode-button active" type="button" data-mode="foreshortening">Acortamiento</button>
+          <button class="mode-button" type="button" data-mode="layover">Layover</button>
+          <button class="mode-button" type="button" data-mode="shadow">Sombra</button>
+        </div>
+
+        <label class="slider-row">
+          <span>
+            <b>Ángulo de incidencia θ</b>
+            <output id="angle-output">35°</output>
+          </span>
+          <input id="angle" type="range" min="20" max="60" step="1" value="35">
+        </label>
+
+        <label class="slider-row">
+          <span>
+            <b>Pendiente hacia el sensor α</b>
+            <output id="slope-output">22°</output>
+          </span>
+          <input id="slope" type="range" min="0" max="70" step="1" value="22">
+        </label>
+
+        <label class="slider-row">
+          <span>
+            <b>Pendiente opuesta γ</b>
+            <output id="backslope-output">38°</output>
+          </span>
+          <input id="backslope" type="range" min="15" max="70" step="1" value="38">
+        </label>
+
+        <label class="slider-row">
+          <span>
+            <b>Altura del relieve</b>
+            <output id="height-output">450 m</output>
+          </span>
+          <input id="height" type="range" min="100" max="900" step="25" value="450">
+        </label>
+
+        <div class="button-row">
+          <button id="pulse-button" type="button">Pulso</button>
+          <button id="demo-button" type="button" aria-pressed="false">Demo</button>
+          <button id="pause-button" type="button">Pausar</button>
+        </div>
+
+        <section class="geometry-bars" aria-label="Intensidad de las distorsiones">
+          <div class="meter-row">
+            <span>Compresión de la ladera</span>
+            <i><b id="shortening-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Riesgo de layover</span>
+            <i><b id="layover-meter"></b></i>
+          </div>
+          <div class="meter-row">
+            <span>Sombra detrás del relieve</span>
+            <i><b id="shadow-meter"></b></i>
+          </div>
+        </section>
+
+        <section class="rule-panel">
+          <p><strong>Acortamiento:</strong> la ladera mira al sensor, pero α &lt; θ.</p>
+          <p><strong>Layover:</strong> la pendiente supera el ángulo de incidencia, α &gt; θ.</p>
+          <p><strong>Sombra:</strong> el radar no puede iluminar una zona detrás del relieve.</p>
+        </section>
+
+        <p class="interpretation" id="interpretation">
+          La ladera orientada hacia el sensor se representa más corta en rango radar que sobre el terreno.
+        </p>
+      </aside>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -16,6 +16,7 @@ Sitio publicado:
 - `06-apertura-sintetica/`: movimiento del sensor, apertura sintética y resolución azimutal SAR.
 - `07-activa-vs-pasiva/`: comparación animada entre energía natural pasiva y pulso activo con eco de retorno.
 - `08-speckle-sar/`: generación del speckle por suma coherente de ecos dentro de una celda de resolución.
+- `09-distorsiones-terreno/`: acortamiento, layover y sombra radar causados por el relieve.
 
 Con el servidor local activo, abre:
 
